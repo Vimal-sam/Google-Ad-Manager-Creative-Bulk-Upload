@@ -1,0 +1,102 @@
+import os
+import uuid
+
+# Import appropriate modules from the client library.
+from googleads import ad_manager
+
+# Set id of the advertiser (company) that the creative will be assigned to.
+ADVERTISER_ID = '5286053650'
+
+
+def main(client, advertiser_id):
+  # Initialize appropriate service.
+  creative_service = client.GetService('CreativeService', version='v202311')
+  lica_service = ad_manager_client.GetService('LineItemCreativeAssociationService', version='v202311')
+
+  # Use the image banner with optional third party tracking template.
+  creative_template_id = '10000680'
+
+  # Create image asset.
+  with open(
+      os.path.join(os.getcwd(),'upload','13412138025186443325.jpeg'), 'rb') as image:
+    image_data = image.read()
+  size = {
+      'width': '300',
+      'height': '250'
+  }
+  asset = {
+      'xsi_type': 'CreativeAsset',
+      'fileName': "test creative template creative 6",
+      'assetByteArray': image_data,
+      'size': size
+  }
+
+  # Create creative from templates.
+  creative = {
+      'xsi_type': 'TemplateCreative',
+      'name': 'Test Creative Template creative 6',
+      'advertiserId': advertiser_id,
+      'size': size,
+      'creativeTemplateId': creative_template_id,
+      'creativeTemplateVariableValues': [
+          {
+              'xsi_type': 'AssetCreativeTemplateVariableValue',
+              'uniqueName': 'Imagefile',
+              'asset': asset
+          },
+          {
+              'xsi_type': 'LongCreativeTemplateVariableValue',
+              'uniqueName': 'Imagewidth',
+              'value': '300'
+          },
+          {
+              'xsi_type': 'LongCreativeTemplateVariableValue',
+              'uniqueName': 'Imageheight',
+              'value': '250'
+          },
+          {
+              'xsi_type': 'UrlCreativeTemplateVariableValue',
+              'uniqueName': 'ClickthroughURL',
+              'value': 'www.google.com'
+          },
+          {
+              'xsi_type': 'UrlCreativeTemplateVariableValue',
+              'uniqueName': 'Thirdpartyimpressiontracker1',
+              'value': 'www.google.com'
+          },
+          {
+              'xsi_type': 'UrlCreativeTemplateVariableValue',
+              'uniqueName': 'Thirdpartyimpressiontracker2',
+              'value': 'www.google.com'
+          },
+          {
+              'xsi_type': 'StringCreativeTemplateVariableValue',
+              'uniqueName': 'Targetwindow',
+              'value': '_blank'
+          }
+      ]
+  }
+
+  # Call service to create the creative.
+  creative_details = creative_service.createCreatives([creative])
+
+  for i in creative_details:
+       creative_id = i['id']
+
+
+  lica_details={
+    'creativeId': creative_id,
+    'lineItemId': 6515197176
+  }
+  licas = lica_service.createLineItemCreativeAssociations(lica_details)
+
+  # Display results.
+  print('Template creative with id "%s", name "%s", and type "%s" was '
+        'created and can be previewed at %s.'
+        % (creative_details['id'], creative_details['name'],
+            ad_manager.AdManagerClassType(creative), creative_details['previewUrl']))
+
+if __name__ == '__main__':
+  # Initialize client object.
+  ad_manager_client = ad_manager.AdManagerClient.LoadFromStorage(r'C:\Users\MM3372\Documents\GAM\googleads.yaml')
+  main(ad_manager_client, ADVERTISER_ID)
