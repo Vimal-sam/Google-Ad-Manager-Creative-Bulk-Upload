@@ -1,0 +1,158 @@
+import os
+import uuid
+
+# Import appropriate modules from the client library.
+from googleads import ad_manager
+
+# Set id of the advertiser (company) that the creative will be assigned to.
+ADVERTISER_ID = '5286053650'
+
+
+def main(client, advertiser_id):
+  # Initialize appropriate service.
+  creative_service = client.GetService('CreativeService', version='v202311')
+  lica_service = ad_manager_client.GetService('LineItemCreativeAssociationService', version='v202311')
+
+  # Use the image banner with optional third party tracking template.
+  creative_template_id = '10001520'
+
+  # Create image asset.
+  with open(
+      os.path.join(os.getcwd(),'upload','MPU_Signpost_Construction-HTQ_1.jpg'), 'rb') as img1:
+    image_data_1 = img1.read()
+
+  with open(
+      os.path.join(os.getcwd(),'upload','MPU_Signpost_Construction-HTQ_2.jpg'), 'rb') as img2:
+    image_data_2 = img2.read()
+
+  with open(
+      os.path.join(os.getcwd(),'upload','MPU_Signpost_Construction-HTQ_3.jpg'), 'rb') as img3:
+    image_data_3 = img3.read()
+
+  with open(
+      os.path.join(os.getcwd(),'upload','MPU_Signpost_Construction-HTQ_4.jpg'), 'rb') as img4:
+    image_data_4 = img4.read()
+
+  size = {
+      'width': '300',
+      'height': '250'
+  }
+  asset1 = {
+      'xsi_type': 'CreativeAsset',
+      'fileName': "MPU_Signpost_Construction-HTQ_1.jpg",
+      'assetByteArray': image_data_1,
+      'size': size
+  }
+  asset2 = {
+      'xsi_type': 'CreativeAsset',
+      'fileName': "MPU_Signpost_Construction-HTQ_2.jpg",
+      'assetByteArray': image_data_2,
+      'size': size
+  }
+  asset3 = {
+      'xsi_type': 'CreativeAsset',
+      'fileName': "MPU_Signpost_Construction-HTQ_3.jpg",
+      'assetByteArray': image_data_3,
+      'size': size
+  }
+  asset4 = {
+      'xsi_type': 'CreativeAsset',
+      'fileName': "MPU_Signpost_Construction-HTQ_4.jpg",
+      'assetByteArray': image_data_4,
+      'size': size
+  }
+
+  # Create creative from templates.
+  creative = {
+      'xsi_type': 'TemplateCreative',
+      'name': 'HTML_ad_animation 1',
+      'advertiserId': advertiser_id,
+      'size': size,
+      'creativeTemplateId': creative_template_id,
+      'creativeTemplateVariableValues': [
+          {
+              'xsi_type': 'AssetCreativeTemplateVariableValue',
+              'uniqueName': 'Image1',
+              'asset': asset1
+          },
+          {
+              'xsi_type': 'AssetCreativeTemplateVariableValue',
+              'uniqueName': 'Image2',
+              'asset': asset2
+          },
+           {
+              'xsi_type': 'AssetCreativeTemplateVariableValue',
+              'uniqueName': 'Image3',
+              'asset': asset3
+          },
+           {
+              'xsi_type': 'AssetCreativeTemplateVariableValue',
+              'uniqueName': 'Image4',
+              'asset': asset4
+          },
+          {
+              'xsi_type': 'StringCreativeTemplateVariableValue',
+              'uniqueName': 'TransitionName1',
+              'value': 'dissolve'
+          },
+          {
+              'xsi_type': 'StringCreativeTemplateVariableValue',
+              'uniqueName': 'TransitionName2',
+              'value': 'dissolve'
+          },
+          {
+              'xsi_type': 'StringCreativeTemplateVariableValue',
+              'uniqueName': 'TransitionName3',
+              'value': 'dissolve'
+          },
+          {
+              'xsi_type': 'StringCreativeTemplateVariableValue',
+              'uniqueName': 'TransitionName4',
+              'value': 'dissolve'
+          },
+          {
+              'xsi_type': 'UrlCreativeTemplateVariableValue',
+              'uniqueName': 'Url1',
+              'value': 'www.google.com'
+          },
+          {
+              'xsi_type': 'LongCreativeTemplateVariableValue',
+              'uniqueName': 'CreativeWidth',
+              'value': '300'
+          },
+          {
+              'xsi_type': 'LongCreativeTemplateVariableValue',
+              'uniqueName': 'CreativeHeight',
+              'value': '250'
+          },
+        #   {
+        #       'xsi_type': 'StringCreativeTemplateVariableValue',
+        #       'uniqueName': 'Targetwindow',
+        #       'value': '_blank'
+        #   }
+      ]
+  }
+
+  # Call service to create the creative.
+  creative_details = creative_service.createCreatives([creative])
+
+  for i in creative_details:
+       creative_id = i['id']
+
+
+  lica_details={
+    'creativeId': creative_id,
+    'lineItemId': 6515197176
+  }
+  licas = lica_service.createLineItemCreativeAssociations(lica_details)
+
+  # Display results.
+  print('Template creative with id "%s", name "%s", and type "%s" was '
+        'created and can be previewed at %s.'
+        % (creative_details['id'], creative_details['name'],
+            ad_manager.AdManagerClassType(creative), creative_details['previewUrl']))
+
+if __name__ == '__main__':
+  # Initialize client object.
+  ad_manager_client = ad_manager.AdManagerClient.LoadFromStorage(r'C:\Users\MM3372\Documents\GAM\googleads.yaml')
+  main(ad_manager_client, ADVERTISER_ID)
